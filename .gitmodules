@@ -1,0 +1,3 @@
+[submodule "Ubuntu-Setup"]
+	path = Ubuntu-Setup
+	url = https://github.com/falwickster/Ubuntu-Setup.git
