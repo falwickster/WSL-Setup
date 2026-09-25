@@ -18,16 +18,30 @@ default.
 
 All Linux-side provisioning (package installs, `git`, GitHub CLI + Copilot
 CLI extension, Helix, Zellij, base package updates, etc.) lives in a
-separate, distro-specific repository, run from *inside* the distro — for
-example [Fedora-Setup](https://github.com/falwickster/Fedora-Setup) for a
-Fedora distro. The two repositories are intentionally **not** linked as a
-submodule; it's a simple two-step, manual process:
+separate, distro-specific repository, run from *inside* the distro. For the
+default distro (Ubuntu), that's
+[Ubuntu-Setup](https://github.com/falwickster/Ubuntu-Setup), pulled in here
+as a **git submodule** at `Ubuntu-Setup/`. If you distro-hop to something
+else later, use that distro's own equivalent setup repo the same way (a
+submodule is optional — it's just how the default is wired here); the
+Windows-side scripts in this repo don't need to change either way.
+
+Even with the submodule present, this stays a simple two-step process:
 
 1. Set up WSL + the distro + WezTerm on Windows (this repo).
-2. Open the distro and clone/run the matching in-distro setup repo.
+2. Open the distro and run the submodule's provisioning script from inside
+   it.
 
-Every install step here checks first whether its target is already present
-and skips reinstalling it if so.
+Every install step here — and in Ubuntu-Setup — checks first whether its
+target is already present and skips reinstalling it if so.
+
+Clone this repo with submodules:
+
+```powershell
+git clone --recurse-submodules https://github.com/falwickster/WSL-Setup.git
+# or, if already cloned without --recurse-submodules:
+git submodule update --init --recursive
+```
 
 ## Prerequisites
 
@@ -66,19 +80,22 @@ for all parameters.
 The first launch of a newly installed distro opens its own console window
 and asks you to create a UNIX username/password interactively — this can't
 be automated safely, so complete that yourself. After that, open the distro
-and run its matching in-distro setup repository, e.g. for Fedora:
+and run the Ubuntu-Setup submodule's install script (paths below assume you
+cloned this repo to `C:\...\WSL-Setup`, adjust the Windows drive mapping if
+different):
 
 ```bash
 wsl -d Ubuntu
-git clone https://github.com/falwickster/Fedora-Setup.git
-cd Fedora-Setup
+cd /mnt/c/.../WSL-Setup/Ubuntu-Setup
 ./install.sh
 ```
 
 That companion repository handles everything inside the distro: base
 package updates, `git`, GitHub CLI (`gh`), the GitHub Copilot CLI extension,
 the Helix editor, and Zellij — each checked for existing installation
-before being installed.
+before being installed. See
+[Ubuntu-Setup's README](https://github.com/falwickster/Ubuntu-Setup) for
+details.
 
 ## Repository layout
 
@@ -88,4 +105,5 @@ scripts/
   Install-WslDistro.ps1  # Idempotently registers an officially supported WSL2 distro
   Install-WezTerm.ps1    # Installs Chocolatey (if needed) + WezTerm, idempotently
   Common.ps1             # Shared helpers (elevation checks/hints, command detection)
+Ubuntu-Setup/            # Submodule: in-distro provisioning for the default (Ubuntu) distro
 ```
