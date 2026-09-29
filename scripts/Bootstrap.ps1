@@ -25,7 +25,7 @@
     .\Bootstrap.ps1
 
 .EXAMPLE
-    .\Bootstrap.ps1 -DistroName Ubuntu-24.04 -SkipWezTerm
+    .\Bootstrap.ps1 -DistroName Ubuntu-26.04 -SkipWezTerm
 #>
 [CmdletBinding()]
 param(
