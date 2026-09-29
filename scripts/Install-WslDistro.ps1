@@ -16,7 +16,7 @@
 
 .PARAMETER DistroName
     The WSL distro identifier to install, e.g. 'Ubuntu' (default),
-    'Ubuntu-24.04', or a Fedora name such as 'FedoraLinux-44'. Must match a
+    'Ubuntu-26.04', or a Fedora name such as 'FedoraLinux-44'. Must match a
     NAME currently returned by `wsl --list --online`.
 
 .PARAMETER SetDefault
@@ -26,7 +26,7 @@
     .\Install-WslDistro.ps1
 
 .EXAMPLE
-    .\Install-WslDistro.ps1 -DistroName Ubuntu-24.04 -SetDefault
+    .\Install-WslDistro.ps1 -DistroName Ubuntu-26.04 -SetDefault
 #>
 [CmdletBinding()]
 param(

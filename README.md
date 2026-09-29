@@ -66,7 +66,7 @@ Or run steps individually:
 .\scripts\Install-WslDistro.ps1
 
 # Use a different distro name (must be a current `wsl --list --online` NAME)
-.\scripts\Install-WslDistro.ps1 -DistroName Ubuntu-24.04 -SetDefault
+.\scripts\Install-WslDistro.ps1 -DistroName Ubuntu-26.04 -SetDefault
 
 # Install/upgrade WezTerm only
 .\scripts\Install-WezTerm.ps1
