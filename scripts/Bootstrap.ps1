@@ -31,6 +31,16 @@
 .PARAMETER SkipWezTerm
     Skip installing WezTerm.
 
+.PARAMETER SkipAlacritty
+    Skip installing Alacritty. Alacritty is installed alongside WezTerm
+    (not as a replacement), so both are available while Alacritty is
+    being evaluated.
+
+.PARAMETER SkipNerdFont
+    Skip installing the JetBrainsMono Nerd Font. Unlike WezTerm, Alacritty
+    has no built-in Nerd Font glyph fallback, so this is installed by
+    default whenever Alacritty is installed.
+
 .EXAMPLE
     .\Bootstrap.ps1
 
@@ -51,7 +61,9 @@ param(
     [switch]$SetDefault,
     [switch]$Reinstall,
     [switch]$Force,
-    [switch]$SkipWezTerm
+    [switch]$SkipWezTerm,
+    [switch]$SkipAlacritty,
+    [switch]$SkipNerdFont
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,4 +80,18 @@ if (-not $SkipWezTerm) {
 }
 else {
     Write-Host 'Skipping WezTerm install (-SkipWezTerm).' -ForegroundColor DarkGray
+}
+
+if (-not $SkipNerdFont) {
+    & (Join-Path $PSScriptRoot 'Install-NerdFont.ps1')
+}
+else {
+    Write-Host 'Skipping Nerd Font install (-SkipNerdFont).' -ForegroundColor DarkGray
+}
+
+if (-not $SkipAlacritty) {
+    & (Join-Path $PSScriptRoot 'Install-Alacritty.ps1')
+}
+else {
+    Write-Host 'Skipping Alacritty install (-SkipAlacritty).' -ForegroundColor DarkGray
 }
