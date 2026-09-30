@@ -9,6 +9,12 @@ distro-agnostic so you can distro-hop later without rewriting it:
   Defaults to `Ubuntu`.
 - Installing [WezTerm](https://wezterm.org/) as the terminal (via
   Chocolatey), idempotently.
+- Installing [Alacritty](https://alacritty.org/) alongside WezTerm (via
+  Chocolatey), idempotently — kept side-by-side while Alacritty is being
+  evaluated as a possible replacement, not instead of WezTerm.
+- Installing the JetBrainsMono Nerd Font (via Chocolatey), idempotently —
+  required for Alacritty to render icons/glyphs correctly (see
+  [Nerd Fonts and Alacritty](#nerd-fonts-and-alacritty) below).
 
 None of the scripts require running elevated up front. If a step actually
 needs administrator rights (enabling the WSL optional component, some
@@ -70,10 +76,29 @@ Or run steps individually:
 
 # Install/upgrade WezTerm only
 .\scripts\Install-WezTerm.ps1
+
+# Install/upgrade Alacritty only (kept alongside WezTerm, not instead of)
+.\scripts\Install-Alacritty.ps1
+
+# Install/upgrade the JetBrainsMono Nerd Font only
+.\scripts\Install-NerdFont.ps1
 ```
 
 See the comment-based help in each script (`Get-Help .\scripts\Install-WslDistro.ps1 -Full`)
-for all parameters.
+for all parameters. `Bootstrap.ps1` also accepts `-SkipWezTerm`,
+`-SkipAlacritty`, and `-SkipNerdFont` to skip any of these steps.
+
+## Nerd Fonts and Alacritty
+
+WezTerm ships a **built-in Nerd Font glyph fallback**, so it renders icons
+(e.g. in its status bar) correctly even without a real Nerd Font
+installed. Alacritty has **no such fallback** — without a real Nerd Font
+installed and configured, glyphs used by tmux's status bar or shell
+prompts render as tofu/boxes. `Install-NerdFont.ps1` installs the
+JetBrainsMono Nerd Font via Chocolatey to cover this, and both
+`Ubuntu-Setup/dotfiles/AppData/Roaming/alacritty/alacritty.toml` and
+`Ubuntu-Setup/dotfiles/.config/wezterm/wezterm.lua` pin it explicitly so
+both terminals render text/icons identically.
 
 ## Setting up a distro fresh (wipe and reinstall)
 
@@ -134,9 +159,11 @@ details.
 
 ```
 scripts/
-  Bootstrap.ps1          # Runs WSL distro install + WezTerm install
+  Bootstrap.ps1          # Runs WSL distro install + WezTerm/Alacritty/Nerd Font install
   Install-WslDistro.ps1  # Idempotently registers an officially supported WSL2 distro
   Install-WezTerm.ps1    # Installs Chocolatey (if needed) + WezTerm, idempotently
+  Install-Alacritty.ps1  # Installs Chocolatey (if needed) + Alacritty, idempotently
+  Install-NerdFont.ps1   # Installs Chocolatey (if needed) + JetBrainsMono Nerd Font, idempotently
   Common.ps1             # Shared helpers (elevation checks/hints, command detection)
 Ubuntu-Setup/            # Submodule: in-distro provisioning for the default (Ubuntu) distro
 ```
