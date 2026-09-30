@@ -75,6 +75,39 @@ Or run steps individually:
 See the comment-based help in each script (`Get-Help .\scripts\Install-WslDistro.ps1 -Full`)
 for all parameters.
 
+## Setting up a distro fresh (wipe and reinstall)
+
+If a distro is already installed and you want to start over from scratch,
+pass `-Reinstall`. **This permanently deletes all data in the existing
+instance** (files, packages, everything set up inside it via the
+Ubuntu-Setup submodule or otherwise) — it runs `wsl --terminate` and
+`wsl --unregister` before reinstalling:
+
+```powershell
+.\scripts\Install-WslDistro.ps1 -Reinstall
+# or, via Bootstrap.ps1:
+.\scripts\Bootstrap.ps1 -Reinstall
+```
+
+You'll be prompted to confirm before anything is removed. For
+non-interactive/scripted use, add `-Force` to skip the confirmation:
+
+```powershell
+.\scripts\Install-WslDistro.ps1 -Reinstall -Force
+```
+
+If a distro is already installed and you run the script *without*
+`-Reinstall` from an interactive session, it will still ask whether you
+want to remove and reinstall it fresh rather than just skipping — answer
+`N` (the default) to leave it untouched.
+
+`-WhatIf` is supported end-to-end, so you can preview exactly what a
+reinstall would do without actually removing anything:
+
+```powershell
+.\scripts\Install-WslDistro.ps1 -Reinstall -WhatIf
+```
+
 ## What happens next
 
 The first launch of a newly installed distro opens its own console window

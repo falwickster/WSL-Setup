@@ -22,16 +22,39 @@
 .PARAMETER SetDefault
     Set this distro as the default WSL distro after install.
 
+.PARAMETER Reinstall
+    If the distro is already installed, remove it (wsl --terminate +
+    wsl --unregister) and install a fresh copy instead of skipping.
+    THIS PERMANENTLY DELETES ALL DATA in the existing instance (files,
+    packages, everything set up inside it). You'll be prompted to confirm
+    unless -Force is also passed.
+
+.PARAMETER Force
+    Skip the confirmation prompt when used with -Reinstall (or when the
+    interactive re-install prompt would otherwise be shown). Use for
+    non-interactive/scripted runs. Has no effect if the distro isn't
+    already installed.
+
 .EXAMPLE
     .\Install-WslDistro.ps1
 
 .EXAMPLE
     .\Install-WslDistro.ps1 -DistroName Ubuntu-26.04 -SetDefault
+
+.EXAMPLE
+    # Wipe and reinstall the existing 'Ubuntu' distro from scratch
+    .\Install-WslDistro.ps1 -Reinstall
+
+.EXAMPLE
+    # Same, but non-interactive (e.g. CI or automation)
+    .\Install-WslDistro.ps1 -Reinstall -Force
 #>
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [string]$DistroName = 'Ubuntu',
-    [switch]$SetDefault
+    [switch]$SetDefault,
+    [switch]$Reinstall,
+    [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,9 +91,52 @@ $installedList = (& wsl --list --quiet 2>&1) -replace "`0", ''
 $alreadyInstalled = $installedList | Where-Object { $_.Trim() -eq $DistroName }
 
 if ($alreadyInstalled) {
-    Write-Host "'$DistroName' is already installed, skipping install." -ForegroundColor DarkGray
+    $doReinstall = $Reinstall
+
+    # Not explicitly asked to reinstall, but running interactively: offer it
+    # instead of just silently skipping.
+    if (-not $doReinstall -and -not $Force -and [Environment]::UserInteractive -and -not $WhatIfPreference) {
+        Write-Host "'$DistroName' is already installed." -ForegroundColor DarkGray
+        $response = Read-Host "Remove it and install a fresh copy? This deletes all its data. [y/N]"
+        $doReinstall = $response -match '^[Yy]'
+    }
+
+    if ($doReinstall) {
+        Write-Warning "This will PERMANENTLY DELETE all data in the existing '$DistroName' instance (files, packages, everything set up inside it)."
+
+        # -Force skips the "are you sure?" confirmation ShouldProcess would
+        # otherwise raise (ConfirmImpact='High'); -WhatIf still reports the
+        # planned action either way.
+        $savedConfirmPreference = $ConfirmPreference
+        if ($Force) { $ConfirmPreference = 'None' }
+        try {
+            $proceed = $PSCmdlet.ShouldProcess($DistroName, 'Remove existing installation and reinstall fresh (wsl --terminate && wsl --unregister)')
+        }
+        finally {
+            $ConfirmPreference = $savedConfirmPreference
+        }
+
+        if (-not $proceed) {
+            Write-Host "Reinstall cancelled, leaving '$DistroName' untouched." -ForegroundColor DarkGray
+            return
+        }
+
+        Write-Host "Terminating '$DistroName'..." -ForegroundColor Cyan
+        & wsl --terminate $DistroName 2>&1 | Out-Null
+
+        Write-Host "Unregistering '$DistroName'..." -ForegroundColor Cyan
+        & wsl --unregister $DistroName
+        if ($LASTEXITCODE -ne 0) {
+            throw "wsl --unregister $DistroName exited with code $LASTEXITCODE"
+        }
+        $alreadyInstalled = $false
+    }
+    else {
+        Write-Host "'$DistroName' is already installed, skipping install." -ForegroundColor DarkGray
+    }
 }
-else {
+
+if (-not $alreadyInstalled) {
     Write-Host "Installing '$DistroName' (wsl --install -d $DistroName)..." -ForegroundColor Cyan
     Write-Host "A separate console window will open to finish setup and ask you to create a UNIX username/password. Complete that, then return here." -ForegroundColor Yellow
 

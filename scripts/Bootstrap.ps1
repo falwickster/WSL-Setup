@@ -18,6 +18,16 @@
 .PARAMETER SetDefault
     Passed through to Install-WslDistro.ps1.
 
+.PARAMETER Reinstall
+    Passed through to Install-WslDistro.ps1. If the distro is already
+    installed, remove it and install a fresh copy instead of skipping.
+    THIS PERMANENTLY DELETES ALL DATA in the existing instance. You'll be
+    prompted to confirm unless -Force is also passed.
+
+.PARAMETER Force
+    Passed through to Install-WslDistro.ps1. Skips the reinstall
+    confirmation prompt, for non-interactive/scripted runs.
+
 .PARAMETER SkipWezTerm
     Skip installing WezTerm.
 
@@ -26,11 +36,21 @@
 
 .EXAMPLE
     .\Bootstrap.ps1 -DistroName Ubuntu-26.04 -SkipWezTerm
+
+.EXAMPLE
+    # Wipe and reinstall the existing distro from scratch
+    .\Bootstrap.ps1 -Reinstall
+
+.EXAMPLE
+    # Same, but non-interactive (e.g. CI or automation)
+    .\Bootstrap.ps1 -Reinstall -Force
 #>
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [string]$DistroName = 'Ubuntu',
     [switch]$SetDefault,
+    [switch]$Reinstall,
+    [switch]$Force,
     [switch]$SkipWezTerm
 )
 
@@ -38,6 +58,9 @@ $ErrorActionPreference = 'Stop'
 
 $distroArgs = @{ DistroName = $DistroName }
 if ($SetDefault) { $distroArgs['SetDefault'] = $true }
+if ($Reinstall) { $distroArgs['Reinstall'] = $true }
+if ($Force) { $distroArgs['Force'] = $true }
+if ($WhatIfPreference) { $distroArgs['WhatIf'] = $true }
 & (Join-Path $PSScriptRoot 'Install-WslDistro.ps1') @distroArgs
 
 if (-not $SkipWezTerm) {
