@@ -1,0 +1,9 @@
+# Force LF endings for every text file, regardless of the committing
+# machine's core.autocrlf setting. Without this, files committed from
+# Windows (core.autocrlf=true) keep a CRLF working-tree copy there while
+# the blob itself stores LF; a WSL git client (core.autocrlf=false) then
+# compares the raw CRLF-on-disk bytes against that LF blob and reports
+# every such file as permanently "modified" - which is exactly what was
+# happening to LICENSE, README.md, and scripts/*.ps1 before this rule
+# existed. PowerShell itself is line-ending agnostic, so LF is safe here.
+* text=auto eol=lf
