@@ -12,10 +12,11 @@
     re-run elevated rather than demanding elevation before you've even
     started.
 
-    A real Nerd Font is required for Alacritty (see Install-Alacritty.ps1):
-    unlike WezTerm, which ships a built-in Nerd Font glyph fallback,
-    Alacritty renders unsupported glyphs (tmux status icons, prompt icons,
-    etc.) as tofu/boxes unless a real Nerd Font is installed and configured.
+    A real Nerd Font gives consistent glyph rendering (tmux status icons,
+    eza/shell prompt icons, etc.) across terminals. WezTerm ships a
+    built-in Nerd Font glyph fallback, so this isn't strictly required for
+    it to render correctly, but installing the real font keeps rendering
+    crisp and consistent rather than relying on the fallback.
 
 .PARAMETER Version
     Optional specific nerd-fonts-jetbrainsmono package version to install.
