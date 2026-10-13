@@ -14,8 +14,9 @@ distro-agnostic so you can distro-hop later without rewriting it:
 - Installing the JetBrainsMono Nerd Font (via Chocolatey), idempotently —
   for consistent glyph rendering (see
   [Nerd Fonts](#nerd-fonts) below).
-- Installing a global git `commit-msg` hook that rejects any commit
-  crediting Copilot (or another AI assistant) as a co-author (see
+- A global git `commit-msg` hook (wired up by the dotfiles' tracked
+  `.gitconfig`) that rejects any commit crediting Copilot (or another AI
+  assistant) as a co-author (see
   [Preventing AI co-author trailers](#preventing-ai-co-author-trailers)
   below).
 
@@ -82,14 +83,11 @@ Or run steps individually:
 
 # Install/upgrade the JetBrainsMono Nerd Font only
 .\scripts\Install-NerdFont.ps1
-
-# Install the global commit-msg hook only
-.\scripts\Install-GitHooks.ps1
 ```
 
 See the comment-based help in each script (`Get-Help .\scripts\Install-WslDistro.ps1 -Full`)
 for all parameters. `Bootstrap.ps1` also accepts `-SkipWezTerm`,
-`-SkipNerdFont`, and `-SkipGitHooks` to skip any of these steps.
+and `-SkipNerdFont` to skip those steps.
 
 ## Nerd Fonts
 
@@ -102,20 +100,16 @@ and `Ubuntu-Setup/dotfiles/.config/wezterm/wezterm.lua` pins it explicitly.
 
 ## Preventing AI co-author trailers
 
-`Install-GitHooks.ps1` sets git's **global** `core.hooksPath` (once per
-Windows user, the same way `user.name`/`user.email` are configured
-globally — not per-repo) to `%USERPROFILE%\.git-hooks`, which the
-[dotfiles](https://github.com/falwickster/dotfiles) checkout (already
-set up separately in your home directory — see that repo's own README)
-deploys a `commit-msg` hook into. That hook rejects any commit whose
+The dotfiles repo's tracked `.gitconfig` sets git's **global**
+`core.hooksPath = ~/.git-hooks` (`~` resolves to `%USERPROFILE%` on
+Windows and `$HOME` in WSL), and the same checkout deploys a `commit-msg`
+hook there. No install script is involved: once the
+[dotfiles](https://github.com/falwickster/dotfiles) are checked out (see
+that repo's own README), the hook is active. It rejects any commit whose
 message contains a `Co-authored-by:` or `Signed-off-by:` trailer
 mentioning "copilot" (case-insensitive). Because it's global rather than
 per-repo, it applies to every repo on the machine, including ones cloned
-fresh later — not just the ones this setup touches directly. The matching
-Linux-side setup (`install-git-hooks.sh` in Ubuntu-Setup) does the same
-for git inside the WSL distro, pointing at `$HOME/.git-hooks` there
-instead (deployed by that distro's own dotfiles checkout, via
-`install-dotfiles.sh`).
+fresh later.
 
 ## Setting up a distro fresh (wipe and reinstall)
 
@@ -180,7 +174,6 @@ scripts/
   Install-WslDistro.ps1  # Idempotently registers an officially supported WSL2 distro
   Install-WezTerm.ps1    # Installs Chocolatey (if needed) + WezTerm, idempotently
   Install-NerdFont.ps1   # Installs Chocolatey (if needed) + JetBrainsMono Nerd Font, idempotently
-  Install-GitHooks.ps1   # Points global git core.hooksPath at the dotfiles-deployed commit-msg hook
   Common.ps1             # Shared helpers (elevation checks/hints, command detection)
 Ubuntu-Setup/            # Submodule: in-distro provisioning for the default (Ubuntu) distro
 ```
