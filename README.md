@@ -27,10 +27,11 @@ that step from an elevated PowerShell session — elevation isn't assumed by
 default.
 
 All Linux-side provisioning (package installs, `git`, GitHub CLI + Copilot
-CLI, Helix, Zellij, Podman, base package updates, etc.) lives in a
+CLI, Helix, Zellij, Podman for general container work — not needed to
+sandbox Copilot, which has its own sandbox — base package updates, etc.) lives in a
 separate, distro-specific repository, run from *inside* the distro. For the
 default distro (Ubuntu), that's
-[Ubuntu-Setup](https://github.com/falwickster/Ubuntu-Setup), pulled in here
+[Ubuntu-Setup](https://github.com/kjafra/Ubuntu-Setup), pulled in here
 as a **git submodule** at `Ubuntu-Setup/`. If you distro-hop to something
 else later, use that distro's own equivalent setup repo the same way (a
 submodule is optional — it's just how the default is wired here); the
@@ -48,7 +49,7 @@ target is already present and skips reinstalling it if so.
 Clone this repo with submodules:
 
 ```powershell
-git clone --recurse-submodules https://github.com/falwickster/WSL-Setup.git
+git clone --recurse-submodules https://github.com/kjafra/WSL-Setup.git
 # or, if already cloned without --recurse-submodules:
 git submodule update --init --recursive
 ```
@@ -104,7 +105,7 @@ The dotfiles repo's tracked `.gitconfig` sets git's **global**
 `core.hooksPath = ~/.git-hooks` (`~` resolves to `%USERPROFILE%` on
 Windows and `$HOME` in WSL), and the same checkout deploys a `commit-msg`
 hook there. No install script is involved: once the
-[dotfiles](https://github.com/falwickster/dotfiles) are checked out (see
+[dotfiles](https://github.com/kjafra/dotfiles) are checked out (see
 that repo's own README), the hook is active. It rejects any commit whose
 message contains a `Co-authored-by:` or `Signed-off-by:` trailer
 mentioning "copilot" (case-insensitive). Because it's global rather than
@@ -163,7 +164,7 @@ That companion repository handles everything inside the distro: base
 package updates, `git`, GitHub CLI (`gh`, with GitHub Copilot CLI support),
 the Helix editor, Zellij, and Podman — each checked for existing
 installation before being installed. See
-[Ubuntu-Setup's README](https://github.com/falwickster/Ubuntu-Setup) for
+[Ubuntu-Setup's README](https://github.com/kjafra/Ubuntu-Setup) for
 details.
 
 ## Repository layout
